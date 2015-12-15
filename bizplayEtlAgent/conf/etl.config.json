@@ -1,0 +1,28 @@
+{
+	"DB_INFO":{
+		"TARGET_DB":[
+			{
+			 "NAME"          :"platform"
+			,"RESOURCE_INFO" :{
+			                    "DIRVER"  :"org.postgresql.Driver"
+			                   ,"URL"     :"jdbc:postgresql://172.20.20.236:5432/appmktdevdb"
+			                   ,"USER"    :"appmktdev"
+			                   ,"PASSWORD":"appmktdev"
+			                  } 
+			}
+		]
+	   ,"ETL_DB":{
+	   	  "DIRVER"  :""
+	     ,"URL"     :""
+	     ,"USER"    :""
+	     ,"PASSWORD":""	
+		}	
+	}
+	,"COLLECTOR":[
+		{
+		 "TAGET" : "platform"
+		,"CLASS" : "default"
+		,"SQL"   : "INSERT INTO AAA SELECT * FROM BBB"
+		}
+	]
+}
