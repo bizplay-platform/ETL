@@ -32,7 +32,6 @@ public class DatabaseManager {
 						pstmt.setInt( i+1 , Integer.parseInt( strParams[i].substring(0, StringUtil.null2void(strParams[i]).indexOf("::int")) ) );
 					}else{
 						pstmt.setString( i+1 , strParams[i] );
-						pstmt.setString
 					}
 				}
 			}
