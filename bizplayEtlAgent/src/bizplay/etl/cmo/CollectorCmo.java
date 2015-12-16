@@ -1,34 +1,35 @@
 package bizplay.etl.cmo;
 
 public class CollectorCmo {
-    private String   target		= null;
-    private String   cls     	= null;
-    private String   readSql	= null;
-    private String   writeSql	= null;
+    private String   eTarget	= null;
+    private String   eQuery    	= null;
+    private String   tlClass	= null;
+    private String   tlQuery	= null;
     
-	public String getTarget() {
-		return target;
+	public String geteTarget() {
+		return eTarget;
 	}
-	public String getCls() {
-		return cls;
+	public String geteQuery() {
+		return eQuery;
 	}
-	public String getReadSql() {
-		return readSql;
+	public String getTlClass() {
+		return tlClass;
 	}
-	public String getWriteSql() {
-		return writeSql;
+	public String getTlQuery() {
+		return tlQuery;
 	}
-	public void setTarget(String target) {
-		this.target = target;
+	public void seteTarget(String eTarget) {
+		this.eTarget = eTarget;
 	}
-	public void setCls(String cls) {
-		this.cls = cls;
+	public void seteQuery(String eQuery) {
+		this.eQuery = eQuery;
 	}
-	public void setReadSql(String readSql) {
-		this.readSql = readSql;
+	public void setTlClass(String tlClass) {
+		this.tlClass = tlClass;
 	}
-	public void setWriteSql(String writeSql) {
-		this.writeSql = writeSql;
+	public void setTlQuery(String tlQuery) {
+		this.tlQuery = tlQuery;
 	}
+    
 
 }

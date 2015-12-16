@@ -47,10 +47,19 @@ public class Config{
     }
     
     /**
+     * 타겟 DB정보를 리턴 합니다.
+     * @param target
+     * @return
+     */
+    public List<TargetDbCmo> getTargetDbCmo() {
+    	return tdb;
+    }    
+    
+    /**
      * ETL DB정보를 리턴 합니다.
      * @return
      */
-    public DwDbCmo getEtlDbCmo() {
+    public DwDbCmo getDwDbCmo() {
     	return ddb;
     }    
     
@@ -59,7 +68,7 @@ public class Config{
      * @param target
      * @return
      */
-    public List<CollectorCmo> getCollectorCmo(String target) {
+    public List<CollectorCmo> getCollectorCmo() {
     	return col;
     }
     
@@ -112,10 +121,10 @@ public class Config{
 		 /* = -------------------------------------------------------------------------- = */			 
 		 for(Object item : collector){
 			 CollectorCmo temp = new CollectorCmo();
-			 temp.setTarget  ((String)((JSONObject)item).get("TARGET"   ));
-			 temp.setCls     ((String)((JSONObject)item).get("CLASS"    ));
-			 temp.setReadSql ((String)((JSONObject)item).get("READ_SQL" ));
-			 temp.setWriteSql((String)((JSONObject)item).get("WRITE_SQL"));
+			 temp.seteTarget   ((String)((JSONObject)((JSONObject)item).get("EXTRACTION")).get("TARGET"));
+			 temp.seteQuery    ((String)((JSONObject)((JSONObject)item).get("EXTRACTION")).get("QUERY" ));
+			 temp.setTlClass   ((String)((JSONObject)((JSONObject)item).get("TRANSFORMATION_LOADING")).get("CLASS" ));
+			 temp.setTlQuery   ((String)((JSONObject)((JSONObject)item).get("TRANSFORMATION_LOADING")).get("QUERY" ));
 			 col.add(temp);
 		 }
 	}

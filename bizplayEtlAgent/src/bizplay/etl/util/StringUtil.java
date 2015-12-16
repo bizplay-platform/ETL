@@ -675,8 +675,22 @@ public class StringUtil{
 	    	}
 	    	
 	    	return check;
-	    	
 	    }
+	    
+	    public static int inValue(String str, String character){
+	    	int count = 0;
+	        if(str == null)
+	            return count;
+	        
+	        for(int i = 0; i < str.length(); i++){
+	            char c = str.charAt(i);
+	            if(character.indexOf(c) > -1){
+	            	count++;
+	            }
+	        }
+	        return count;
+	    }
+	    
 
 		public static String[] makeArrayToString(String raw, int len) {
 			if (raw==null) return null;
@@ -727,6 +741,15 @@ public class StringUtil{
 						
 			return ary;
 		}
+	    
+	    public static String null2void(String s)
+	    {
+	        return isBlank(s) ? "" : s;
+	    }
+		
+	    public static String null2void(String s , String c){
+	        return isBlank(s) ? c : s;
+	    }
 	    
 	    public static final int RIGHT = 1;
 	    public static final int LEFT = 2;

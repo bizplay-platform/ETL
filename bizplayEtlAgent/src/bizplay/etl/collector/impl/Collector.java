@@ -1,15 +1,11 @@
 package bizplay.etl.collector.impl;
 
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
 public interface Collector {
 
-	/**
-	 * 타겟 DB 테이블에 대한 Read를 담당
-	 */
-	public void read();
-
-	/**
-	 * ETL DB 테이블에 대한 write를 담당 
-	 */
-	public void write();
+	public void transformationAndLoading(Connection con , String query , List<Map<String,String>> extractionData);
 	
 }
