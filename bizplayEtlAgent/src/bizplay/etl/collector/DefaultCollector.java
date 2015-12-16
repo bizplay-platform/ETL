@@ -11,8 +11,7 @@ public class DefaultCollector implements Collector{
 
 	@Override
 	public void transformationAndLoading(Connection con , String query , List<Map<String,String>> extractionData) {
-		// TODO Auto-generated method stub
-		
+		안녕~!
 	}
 
 }
