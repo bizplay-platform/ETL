@@ -1,5 +1,6 @@
 {
-	"DB_INFO":{
+	 "COLLECT_START_TIME":"030000"
+	,"DB_INFO":{
 		"TARGET_DB":[
 			{
 			 "NAME"          :"platform"
@@ -11,7 +12,7 @@
 			                  } 
 			}
 		]
-	   ,"ETL_DB":{
+	   ,"DW_DB":{
 	   	  "DIRVER"  :""
 	     ,"URL"     :""
 	     ,"USER"    :""
@@ -20,9 +21,10 @@
 	}
 	,"COLLECTOR":[
 		{
-		 "TAGET" : "platform"
-		,"CLASS" : "default"
-		,"SQL"   : "INSERT INTO AAA SELECT * FROM BBB"
+		 "TARGET"    : "platform"
+		,"CLASS"     : "default"
+		,"READ_SQL"  : "INSERT INTO AAA SELECT * FROM BBB"
+		,"WRITE_SQL" : "INSERT INTO AAA SELECT * FROM BBB"
 		}
 	]
 }
