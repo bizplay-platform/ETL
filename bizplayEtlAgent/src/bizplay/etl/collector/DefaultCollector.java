@@ -14,4 +14,4 @@ public class DefaultCollector implements Collector{
 		안녕~!
 	}
 
-}
+} 
