@@ -1,11 +1,15 @@
 package bizplay.etl.cmo;
 
 public class CollectorCmo {
+	private String   name		= null;
     private String   eTarget	= null;
     private String   eQuery    	= null;
     private String   tlClass	= null;
     private String   tlQuery	= null;
     
+	public String getName() {
+		return name;
+	}
 	public String geteTarget() {
 		return eTarget;
 	}
@@ -18,6 +22,9 @@ public class CollectorCmo {
 	public String getTlQuery() {
 		return tlQuery;
 	}
+	public void setName(String name) {
+		this.name = name;
+	}	
 	public void seteTarget(String eTarget) {
 		this.eTarget = eTarget;
 	}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<store>
+
+	<query>
+		<name>WeAuth 인증 이력 수집</name>
+		<extractionTargetDB>platform</extractionTargetDB>
+		<extractionQuery>
+			<![CDATA[
+SELECT CRTC_DT , SUBSTR(CRTC_TMD,1,2) AS CRTC_TIME , CCTN_CHNL_ID , USE_INTT_SRNO , CNTS_ID , USER_ID , COUNT(USER_ID) AS CONN_CNT
+  FROM WA_CRTC_PRHS 
+ WHERE CRTC_DT  = ?
+   AND SVC_PTRN = 'M'
+   AND PTL_ID   = 'PTL_51'
+   AND USE_INTT_SRNO <> '999999999'                                                   
+ GROUP BY CRTC_DT , SUBSTR(CRTC_TMD,1,2) , CCTN_CHNL_ID , USE_INTT_SRNO , CNTS_ID , USER_ID
+			]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_BP_APP_EXCN_ACRS(CRTC_DT , CRTC_HH , CHNL_ID , USE_INTT_ID , CNTS_ID , USER_ID , EXCN_CNT)
+VALUES(#CRTC_DT# , #CRTC_TIME# ,#CCTN_CHNL_ID# , #USE_INTT_SRNO# , #CNTS_ID# , #USER_ID# , TO_NUMBER(#CONN_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>	
+
+
+	<query>
+		<name>bizplay 로그인 이력 수집</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+			<![CDATA[
+SELECT CHNL_ID  , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH , COUNT(USER_ID) AS LGN_CNT
+  FROM(
+	   SELECT CHNL_ID 
+		    , USE_INTT_ID 
+			, USER_ID 
+			, LGN_DT 
+			, SUBSTR(LGN_TMD,1,2) AS LGN_HH 
+			, (CASE WHEN LGN_DVC_DSNC = 'mobile' THEN 'mobile' ELSE 'pc' END) AS JNNG_PATH 
+         FROM LGN_PRHS
+		WHERE LGN_DT = ?
+      )A
+  GROUP BY CHNL_ID  , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH
+			]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_BP_LGN_ACRS(CHNL_ID , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH , LGN_CNT)
+VALUES(#CHNL_ID# , #USE_INTT_ID# , #USER_ID# , #LGN_DT# , #LGN_HH# , #JNNG_PATH# , TO_NUMBER(#LGN_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>
+	
+</store>

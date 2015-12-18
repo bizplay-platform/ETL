@@ -14,6 +14,10 @@ public class EtlException extends Exception{
 		super(code.getMessage() , rootCause);
 	}
 	
+	public EtlException(Code code) {
+		super(code.getMessage());
+	}	
+	
 	public void setCode(Code code){
 		this.Code = code;
 	}

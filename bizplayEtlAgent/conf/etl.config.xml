@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<config>
+	<agent>
+		<startTime>030000</startTime>
+	</agent>
+	<database>
+		<extractionTargetDB>
+			<info>
+				<alias>platform</alias>
+				<driver>org.postgresql.Driver</driver>
+				<url>jdbc:postgresql://172.20.20.236:5432/appmktdevdb</url>
+				<user>appmktdev</user>
+				<password>appmktdev</password>			
+			</info>
+			<info>
+				<alias>bizplay</alias>
+				<driver>org.postgresql.Driver</driver>
+				<url>jdbc:postgresql://172.20.20.190:5433/stndptldevdb</url>
+				<user>stndptl_app</user>
+				<password>stndptlapp123</password>			
+			</info>
+		</extractionTargetDB>
+		<dataWareHouseDB>
+			<driver>org.postgresql.Driver</driver>
+			<url>jdbc:postgresql://172.20.20.190:5433/admptldevdb</url>
+			<user>admptl_app</user>
+			<password>admptlapp123</password>		
+		</dataWareHouseDB>
+	</database>
+</config>

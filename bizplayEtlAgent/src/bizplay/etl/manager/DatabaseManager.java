@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -20,18 +22,26 @@ import bizplay.etl.util.StringUtil;
 
 public class DatabaseManager {
 
-	public List<Map<String,String>> executeQuery( Connection con , String strQuert , String[] strParams )throws Exception{
+	/**
+	 * executeQuery
+	 * @param con
+	 * @param strQuery
+	 * @param strParams
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String,String>> executeQuery( Connection connection , String query , String[] params )throws Exception{
 		ResultSet         		rs        = null;
 		List<Map<String,String>>list      = null;
 		PreparedStatement 		pstmt     = null;
 		try{
-			pstmt = con.prepareStatement( strQuert );
-			if( strParams != null ){
-				for( int i = 0 ; i < strParams.length ; i++ ){
-					if( StringUtil.null2void(strParams[i]).indexOf("::int") > -1 ){
-						pstmt.setInt( i+1 , Integer.parseInt( strParams[i].substring(0, StringUtil.null2void(strParams[i]).indexOf("::int")) ) );
+			pstmt = connection.prepareStatement( query );
+			if( params != null ){
+				for( int i = 0 ; i < params.length ; i++ ){
+					if( StringUtil.null2void(params[i]).indexOf("::int") > -1 ){
+						pstmt.setInt( i+1 , Integer.parseInt( params[i].substring(0, StringUtil.null2void(params[i]).indexOf("::int")) ) );
 					}else{
-						pstmt.setString( i+1 , strParams[i] );
+						pstmt.setString( i+1 , params[i] );
 					}
 				}
 			}
@@ -48,20 +58,28 @@ public class DatabaseManager {
 		return list;
 	}
 	
-	public JSONArray executeQueryToJSON( Connection con , String strQuert , String[] strParams )throws Exception{
+	/**
+	 * executeQueryToJSON
+	 * @param con
+	 * @param strQuery
+	 * @param strParams
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONArray executeQueryToJSON( Connection connection , String query , String[] params )throws Exception{
 		ResultSet         		rs    = null;
 		JSONArray               list  = null;
 		PreparedStatement 		pstmt = null;
 		try{
-			pstmt = con.prepareStatement( strQuert );
+			pstmt = connection.prepareStatement( query );
 			
-			if( strParams != null ){
-				for( int i = 0 ; i < strParams.length ; i++ ){
-					if( strParams[i] != "" ){
-						if( StringUtil.null2void(strParams[i]).indexOf("::int") > -1 ){
-							pstmt.setInt( i+1 , Integer.parseInt( strParams[i].substring(0, StringUtil.null2void(strParams[i]).indexOf("::int")) ) );
+			if( params != null ){
+				for( int i = 0 ; i < params.length ; i++ ){
+					if( params[i] != "" ){
+						if( StringUtil.null2void(params[i]).indexOf("::int") > -1 ){
+							pstmt.setInt( i+1 , Integer.parseInt( params[i].substring(0, StringUtil.null2void(params[i]).indexOf("::int")) ) );
 						}else{
-							pstmt.setString( i+1 , strParams[i] );	
+							pstmt.setString( i+1 , params[i] );	
 						}
 					}
 				}
@@ -78,27 +96,34 @@ public class DatabaseManager {
 		return list;
 	}
 	
-	
-	public synchronized int executeUpdate( Connection con , String strQuert , String[] strParams )throws Exception{
+	/**
+	 * executeUpdate
+	 * @param con
+	 * @param strQuery
+	 * @param strParams
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized int executeUpdate( Connection connection , String query , String[] params )throws SQLException{
 		PreparedStatement 	pstmt = null;
 		int					nRet  = 0;
 		
 		try{
-			pstmt = con.prepareStatement( strQuert );
-			if( strParams != null ){
-				for( int i = 0 ; i < strParams.length ; i++ ){
-					if( strParams[i] != "" ){
-						if( StringUtil.null2void(strParams[i]).indexOf("::int") > -1 ){
-							pstmt.setInt( i+1 , Integer.parseInt( strParams[i].substring(0, StringUtil.null2void(strParams[i]).indexOf("::int")) ) );
+			pstmt = connection.prepareStatement( query );
+			if( params != null ){
+				for( int i = 0 ; i < params.length ; i++ ){
+					if( params[i] != "" ){
+						if( StringUtil.null2void(params[i]).indexOf("::int") > -1 ){
+							pstmt.setInt( i+1 , Integer.parseInt( params[i].substring(0, StringUtil.null2void(params[i]).indexOf("::int")) ) );
 						}else{
-							pstmt.setString( i+1 , strParams[i] );	
+							pstmt.setString( i+1 , params[i] );	
 						}
 					}
 				}
 			}
          	nRet = pstmt.executeUpdate();
 		} 
-		catch (Exception e) {
+		catch (SQLException e) {
 			throw e; 
 		} 
 		finally{
@@ -107,6 +132,12 @@ public class DatabaseManager {
 		return nRet;
 	}
 	
+	/**
+	 * getResult
+	 * @param rs
+	 * @return
+	 * @throws Exception
+	 */
 	public List<Map<String,String>> getResult( ResultSet rs )throws Exception{
 		List <Map<String,String>>  list = new ArrayList<Map<String,String>>();
 		ResultSetMetaData          rsmd = rs.getMetaData();
@@ -140,6 +171,12 @@ public class DatabaseManager {
 		return list;
 	}
 	
+	/**
+	 * getResultToJSON
+	 * @param rs
+	 * @return
+	 * @throws Exception
+	 */
 	public JSONArray getResultToJSON( ResultSet rs )throws Exception{
 		JSONArray         list = new JSONArray();
 		ResultSetMetaData rsmd = rs.getMetaData();
@@ -169,59 +206,134 @@ public class DatabaseManager {
 		return list;
 	}
 	
-
-	public void release( Statement stmt ){
+	/**
+	 * Statement를 반납 합니다.
+	 * @param statement
+	 */
+	public void release( Statement statement ){
 		try{
-			if (stmt != null){
-				stmt.close();
-				stmt = null;
+			if (statement != null){
+				statement.close();
+				statement = null;
 			}
 		}catch (SQLException e){
 			e.printStackTrace();
 		}
 	}
 
-	public void release(PreparedStatement pstmt){
+	/**
+	 * PreparedStatement를 반납 합니다.
+	 * @param preparedstatement
+	 */
+	public void release(PreparedStatement preparedstatement){
 		try{
-			if (pstmt != null){
-				pstmt.close();
-				pstmt = null;
+			if (preparedstatement != null){
+				preparedstatement.close();
+				preparedstatement = null;
 			}
 		}catch (SQLException e){
 			e.printStackTrace();
 		}
 	}
 
-	public void release(ResultSet rs){
+	/**
+	 * ResultSet을 반납 합니다.
+	 * @param resultSet
+	 */
+	public void release(ResultSet resultSet){
 		try{
-			if(rs!=null){
-				rs.close();
-				rs = null;
+			if(resultSet!=null){
+				resultSet.close();
+				resultSet = null;
 			}
 		}
 		catch(SQLException e){
 			e.printStackTrace();
 		}
 	}
-		
-	public void rollback(Connection con){
+	
+	/**
+	 * Transaction을 설정 합니다.
+	 * @param connection
+	 */
+	public void beginTransaction(Connection connection){
 		try{
-			if (con != null){
-				if (!con.getAutoCommit()) con.rollback();
+			if (connection != null){
+				if (connection.getAutoCommit()) connection.setAutoCommit(false);
 			}
 		}catch (SQLException e){
-         e.printStackTrace();
+			e.printStackTrace();
+		}		
+	}
+	
+	/**
+	 * Transaction을 종료 합니다.
+	 * @param connection
+	 */
+	public void endTransaction(Connection connection){
+		try{
+			if (connection != null){
+				if (!connection.getAutoCommit()) connection.setAutoCommit(true);
+			}
+		}catch (SQLException e){
+			e.printStackTrace();
+		}		
+	}	
+	
+	/**
+	 * rollback
+	 * @param connection
+	 */
+	public void rollback(Connection connection){
+		try{
+			if (connection != null){
+				if (!connection.getAutoCommit()) connection.rollback();
+			}
+		}catch (SQLException e){
+			e.printStackTrace();
 		}
 	}
 	
-	public void commit(Connection con) {
+	/**
+	 * commit
+	 * @param connection
+	 */
+	public void commit(Connection connection) {
 		try {
-			if (con != null) {
-				if (!con.getAutoCommit()) con.commit();
+			if (connection != null) {
+				if (!connection.getAutoCommit()) connection.commit();
 			}
 		}catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * @description : Query 바인딩 변수를 추출합니다.
+	 * @param       : String
+	 * @return      : List<String>
+	 */
+	public List<String> getParam( String query ){
+		List <String>lparamList = new ArrayList<String>(); 
+		
+		Pattern p = Pattern.compile("\\#[a-zA-Z0-9 ,_-]*#");
+		
+		Matcher m = p.matcher(query);
+		
+		while (m.find()) {
+			lparamList.add(m.group().replaceAll("#", ""));
+		}
+		
+		return lparamList;
+	}
+	
+	/**
+    * @description : JDBC에서 읽을수 있는 Query문장으로 변경 합니다.
+    * @param       : String
+    * @return      : String
+    */
+	public String queryCompile( String query ){
+		return query.replaceAll("\\#[a-zA-Z0-9 ,_-]*#", "?");
 	}	
 		
 }

@@ -37,7 +37,7 @@ public class DatabaseConnect {
 	    	try {
 	    		Class.forName(item.getDriver());
 	    		c = DriverManager.getConnection(item.getUrl(),item.getUser(),item.getPassword());
-	    		co = new ConnectionObject(c , item.getName());
+	    		co = new ConnectionObject(c , item.getAlias());
 	    		connections.add(co);
 	   		} catch (Exception e) {
 	   			e.printStackTrace();

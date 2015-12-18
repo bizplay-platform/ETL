@@ -1,14 +1,14 @@
 package bizplay.etl.cmo;
 
 public class TargetDbCmo {
-    private String   name		= null;
+    private String   alias		= null;
     private String   driver  	= null;
     private String   url		= null;
     private String   user		= null;
     private String   password  = null;
     
-	public String getName() {
-		return name;
+	public String getAlias() {
+		return alias;
 	}
 	public String getDriver() {
 		return driver;
@@ -22,8 +22,8 @@ public class TargetDbCmo {
 	public String getPassword() {
 		return password;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 	public void setDriver(String driver) {
 		this.driver = driver;
