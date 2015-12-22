@@ -25,9 +25,10 @@ public class DefaultCollector implements Collector{
 		
 		/* = -------------------------------------------------------------------------- = */
 		/* =   SQL 파싱		   	                                   			  			= */
-		/* = -------------------------------------------------------------------------- = */		
-		columnMap   = dm.getParam    (query);
-		query       = dm.queryCompile(query);
+		/* = -------------------------------------------------------------------------- = */
+		query       = dm.replaceAnnotation(query);
+		columnMap   = dm.getParam         (query);
+		query       = dm.queryCompile     (query);
 		strArrParam = new String[StringUtil.inValue(query , "?")];
 
 		/* = -------------------------------------------------------------------------- = */

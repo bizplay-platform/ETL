@@ -8,6 +8,7 @@ import bizplay.etl.Config;
 import bizplay.etl.cmo.CollectorCmo;
 import bizplay.etl.collector.Extraction;
 import bizplay.etl.collector.impl.Collector;
+import bizplay.etl.com.etlLogManager;
 import bizplay.etl.database.DatabaseConnect;
 
 public class CollectorManager extends TimerTask{
@@ -33,11 +34,11 @@ public class CollectorManager extends TimerTask{
 		/* = -------------------------------------------------------------------------- = */
 		/* =   DB컨넥션 생성   	                                   			  			= */
 		/* = -------------------------------------------------------------------------- = */
-		System.out.println("Database 접속을 시작 합니다.");
+		etlLogManager.etlLog("INFO" ,"Database 접속을 시작 합니다.");
 		cStartTime = System.currentTimeMillis();	
 		connect.init();
 		cEndTime   = System.currentTimeMillis();
-		System.out.println("Database 접속이 완료 되었습니다.접속에 걸린 시간"+Long.toString(cEndTime-cStartTime)+"ms");
+		etlLogManager.etlLog("INFO" ,"Database 접속이 완료 되었습니다.접속에 걸린 시간"+Long.toString(cEndTime-cStartTime)+"ms");
 		
 		/* = -------------------------------------------------------------------------- = */
 		/* =   컬렉터 실행	   	                                   			  			= */
@@ -45,13 +46,13 @@ public class CollectorManager extends TimerTask{
 		try{
 			for(CollectorCmo item : col){
 				
-				System.out.println(item.getName()+"(을) 시작 합니다.....................................");
+				etlLogManager.etlLog("INFO" ,item.getName()+"(을) 시작 합니다.....................................");
 				
 				//추출
 				eStartTime = System.currentTimeMillis();				
 				result     = Extraction.execute(connect.getConnection(item.geteTarget()) , item.geteQuery ());
 				eEndTime   = System.currentTimeMillis();
-				System.out.println("추출에 걸린 시간은 : "+Long.toString(eEndTime-eStartTime)+"ms 이며, "+result.size()+"행이 추출 되었습니다.");
+				etlLogManager.etlLog("INFO" ,"추출에 걸린 시간은 : "+Long.toString(eEndTime-eStartTime)+"ms 이며, "+result.size()+"행이 추출 되었습니다.");
 				
 				//변환/적재
 				if(result.size() > 0){
@@ -60,11 +61,11 @@ public class CollectorManager extends TimerTask{
 					collector   = (Collector)cls.newInstance();
 					collector.transformationAndLoading(connect.getConnection("DW"), item.getTlQuery(), result);
 					tlEndTime   = System.currentTimeMillis();
-					System.out.println("변환/적재에 걸린 시간은 "+Long.toString(tlEndTime-tlStartTime)+"ms 입니다.");					
+					etlLogManager.etlLog("INFO" ,"변환/적재에 걸린 시간은 "+Long.toString(tlEndTime-tlStartTime)+"ms 입니다.");					
 				}else{
 					
 				}
-				System.out.println(item.getName()+"(을) 종료 합니다.....................................");
+				etlLogManager.etlLog("INFO" ,item.getName()+"(을) 종료 합니다.....................................");
 			}
 		}catch(Exception e){
 		}finally{

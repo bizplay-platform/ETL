@@ -2,7 +2,7 @@
 
 <store>
 
-	<query>
+	<!-- query>
 		<name>WeAuth 인증 이력 수집</name>
 		<extractionTargetDB>platform</extractionTargetDB>
 		<extractionQuery>
@@ -23,35 +23,464 @@ INSERT INTO DW_BP_APP_EXCN_ACRS(CRTC_DT , CRTC_HH , CHNL_ID , USE_INTT_ID , CNTS
 VALUES(#CRTC_DT# , #CRTC_TIME# ,#CCTN_CHNL_ID# , #USE_INTT_SRNO# , #CNTS_ID# , #USER_ID# , TO_NUMBER(#CONN_CNT#,'99999'))
 ]]>
 		</transformationLoadingQuery>
-	</query>	
+	</query-->	
 
-
+	<!-- 채널 정보 -->
 	<query>
-		<name>bizplay 로그인 이력 수집</name>
+		<name>채널 정보 수집</name>
 		<extractionTargetDB>bizplay</extractionTargetDB>
 		<extractionQuery>
-			<![CDATA[
-SELECT CHNL_ID  , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH , COUNT(USER_ID) AS LGN_CNT
-  FROM(
-	   SELECT CHNL_ID 
-		    , USE_INTT_ID 
-			, USER_ID 
-			, LGN_DT 
-			, SUBSTR(LGN_TMD,1,2) AS LGN_HH 
-			, (CASE WHEN LGN_DVC_DSNC = 'mobile' THEN 'mobile' ELSE 'pc' END) AS JNNG_PATH 
-         FROM LGN_PRHS
-		WHERE LGN_DT = ?
-      )A
-  GROUP BY CHNL_ID  , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH
-			]]>
+<![CDATA[
+SELECT CHNL_ID 
+     , CHNL_NM
+     , SUBSTRING(RGSN_DTTM,1,8) AS RGSN_DT
+  FROM CHNL_LDGR
+WHERE SUBSTRING(RGSN_DTTM,1,8) = ?
+]]>
 		</extractionQuery>
 		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
 		<transformationLoadingQuery>
 <![CDATA[
-INSERT INTO DW_BP_LGN_ACRS(CHNL_ID , USE_INTT_ID , USER_ID , LGN_DT , LGN_HH , JNNG_PATH , LGN_CNT)
-VALUES(#CHNL_ID# , #USE_INTT_ID# , #USER_ID# , #LGN_DT# , #LGN_HH# , #JNNG_PATH# , TO_NUMBER(#LGN_CNT#,'99999'))
+INSERT INTO DW_CHNL_INFM(CHNL_ID , CHNL_NM , RGSN_DT)
+VALUES(#CHNL_ID# , #CHNL_NM# , #RGSN_DT#)
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- 채널 정보 -->
+	
+	
+	
+	<!-- 이용기관 정보 -->
+	<query>
+		<name>이용기관 정보 수집</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT USE_INTT_ID
+     , STTS
+     , BSNN_NM
+     , ATHZ_DT
+     , (CASE WHEN STTS = '1' THEN '99999999' ELSE SUBSTRING(AMNN_DTTM,1,8) END) AS STTS_MDDA_DT
+  FROM USE_INTT_LDGR
+ WHERE ATHZ_DT = ?
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_USE_INTT_INFM(USE_INTT_ID , STTS , USE_INTT_NM , ATHZ_DT , STTS_MDDA_DT)
+VALUES(#USE_INTT_ID# , #STTS# , #BSNN_NM# , #ATHZ_DT# , #STTS_MDDA_DT#)
 ]]>
 		</transformationLoadingQuery>
 	</query>
 	
+	<query>
+		<name>이용기관 정보 상태 갱신</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT USE_INTT_ID
+     , STTS
+     , SUBSTRING(AMNN_DTTM,1,8) AS AMNN_DT
+  FROM USE_INTT_LDGR
+ WHERE SUBSTRING(AMNN_DTTM,1,8) = ?  
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+UPDATE DW_USE_INTT_INFM
+   SET STTS         = #STTS#
+     , STTS_MDDA_DT = #AMNN_DT#
+ WHERE USE_INTT_ID  = #USE_INTT_ID#
+   AND STTS        <> #STTS#
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- 이용기관 정보 -->
+	
+	
+	
+	<!-- 사용자 정보 -->
+	<query>
+		<name>사용자 정보 수집</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT A.USER_ID
+     , A.USER_NM
+     , A.CLPH_NO
+     , A.EML
+     , SUBSTRING(RGSN_DTTM,1,8) AS RGSN_DT
+  FROM USER_LDGR      A
+  WHERE SUBSTRING(RGSN_DTTM,1,8) = ?
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_USER_INFM(USER_ID , USER_NM , CLPH_NO , EML , RGSN_DT)
+VALUES(#USER_ID# , #USER_NM# , #CLPH_NO# , #EML# , #RGSN_DT#)
+]]>
+		</transformationLoadingQuery>
+	</query>	
+	<!-- 사용자 정보 -->
+	
+	
+	
+	<!-- APP 정보 -->
+	<query>
+		<name>APP 정보 수집</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT A.APP_SRNO
+     , B.APP_NM
+     , A.CNTS_ID 
+  FROM       APP_LDGR          A
+  INNER JOIN APP_LNGG_PER_INFM B ON (A.APP_SRNO = B.APP_SRNO AND B.LNGG_DSNC = 'DF')
+  WHERE SUBSTRING(RGSN_DTTM,1,8) = ?
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_APP_INFM(APP_SRNO , APP_NM , CNTS_ID )
+VALUES(TO_NUMBER(#APP_SRNO#,'99999') , #APP_NM# , #CNTS_ID#)
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- APP 정보 -->
+	
+	
+	
+	<!-- 이용기관별 사용자 내역 -->
+	<query>
+		<name>이용기관별 사용자 내역 승인 사용자 등록</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT B.CHNL_ID
+     , B.USE_INTT_ID
+     , B.USER_ID
+     , A.ATHZ_DT
+     , '99999999' AS TRMT_DT
+  FROM       USE_INTT_USER_LDGR A
+  INNER JOIN USE_INTT_PER_USER  B ON (A.USER_ID = B.USER_ID)
+    AND A.ATHZ_DT = ?  
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_USE_INTT_PER_USER_HSTR(CHNL_ID , USE_INTT_ID , USER_ID , ATHZ_DT , TRMT_DT)
+VALUES(#CHNL_ID# , #USE_INTT_ID# , #USER_ID# , #ATHZ_DT# , #TRMT_DT#)
+]]>
+		</transformationLoadingQuery>
+	</query>
+	
+	<query>
+		<name>이용기관별 사용자 내역 해지 사용자 갱신</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CCTN_CHNL_ID
+     , USE_INTT_ID
+     , USER_ID
+     , PCSN_DT
+  FROM USER_SECS_LDGR   
+ WHERE PCSN_DT = ?
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+UPDATE DW_USE_INTT_PER_USER_HSTR
+   SET TRMT_DT     = #PCSN_DT#
+ WHERE CHNL_ID     = #CCTN_CHNL_ID#
+   AND USE_INTT_ID = #USE_INTT_ID#
+   AND USER_ID     = #USER_ID#
+]]>
+		</transformationLoadingQuery>
+	</query>	
+	<!-- 이용기관별 사용자 내역 -->
+	
+	
+	
+	<!-- APP 구매내역 -->
+	<query>
+		<name>APP구매내역 등록</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
+     , USE_INTT_ID
+     , APP_SRNO
+     , CNRC_RSPR_ID
+     , AGRM_TERM_STDD
+     , '99999999' AS TRMT_DT
+  FROM USE_INTT_PER_AGRM_BSC_INFM 
+ WHERE CNRC_DSNC = '2'
+   AND AGRM_TERM_STDD = '20151218'
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_APP_BUY_HSTR(CHNL_ID , USE_INTT_ID , APP_SRNO , BYR_ID , BUY_DT , TRMT_DT)
+VALUES(#CCTN_CHNL_ID# , #USE_INTT_ID# , TO_NUMBER(#APP_SRNO#,'99999') , #CNRC_RSPR_ID# , #AGRM_TERM_STDD# , #TRMT_DT#)
+]]>
+		</transformationLoadingQuery>
+	</query>
+	
+	<query>
+		<name>APP구매내역 해지일자 갱신</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
+     , USE_INTT_ID
+     , APP_SRNO
+     , CNRC_RSPR_ID
+     , AGRM_TERM_FNDA
+  FROM USE_INTT_PER_AGRM_BSC_INFM 
+ WHERE CNRC_DSNC = '2'
+   AND AGRM_TERM_FNDA = ?
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+UPDATE DW_APP_BUY_HSTR
+   SET TRMT_DT     = #AGRM_TERM_FNDA#
+ WHERE CHNL_ID     = #CCTN_CHNL_ID#
+   AND USE_INTT_ID = #USE_INTT_ID#
+   AND APP_SRNO    = TO_NUMBER(#APP_SRNO#,'99999')
+   AND BYR_ID      = #CNRC_RSPR_ID#
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- APP 구매내역 -->
+	
+	
+	
+	<!-- 이용기관별 APP 이용 실적 -->
+	<query>
+		<name>이용기관별 APP 이용 실적 등록</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CHNL_ID
+     , USE_INTT_ID
+     , APP_SRNO
+     , SUBSTRING(APRVL_DTTM,1,8) AS APRVL_DT
+     , COUNT(USE_INTT_ID) AS USE_CNT
+  FROM USER_PER_APP_USE_INFM
+ WHERE SUBSTRING(APRVL_DTTM,1,8) = ?
+ GROUP BY CHNL_ID , USE_INTT_ID , APP_SRNO , SUBSTRING(APRVL_DTTM,1,8)   
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_USE_INTT_PER_APP_ACRS(CHNL_ID , USE_INTT_ID , APP_SRNO , ATHZ_DT , USE_CNT)
+VALUES(#CHNL_ID# , #USE_INTT_ID# , TO_NUMBER(#APP_SRNO#,'99999') , #APRVL_DT# , TO_NUMBER(#USE_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>	
+	<!-- 이용기관별 APP 이용 실적 -->
+	
+	
+	
+	<!-- 로그인 실적 -->
+	<query>
+		<name>로그인 실적 등록</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CHNL_ID  
+     , USE_INTT_ID 
+     , USER_ID 
+     , LGN_DT 
+     , JNNG_PATH
+     , COUNT(USER_ID) AS LGN_CNT
+  FROM(
+	SELECT CHNL_ID 
+	     , USE_INTT_ID 
+	     , USER_ID 
+	     , LGN_DT 
+	     , (CASE WHEN LGN_DVC_DSNC = 'mobile' THEN 'mobile' ELSE 'pc' END) AS JNNG_PATH 
+	  FROM LGN_PRHS
+	 WHERE LGN_DT = ?
+      )A
+GROUP BY CHNL_ID  , USE_INTT_ID , USER_ID , LGN_DT , JNNG_PATH
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_LGN_ACRS(CHNL_ID , USE_INTT_ID , USER_ID , CCTN_DSNC , LGN_DT , LGN_CNT)
+VALUES(#CHNL_ID# , #USE_INTT_ID# , #USER_ID# , #JNNG_PATH# , #LGN_DT# , TO_NUMBER(#LGN_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- 로그인 실적 -->
+	
+	
+	
+	<!-- 접속 디바이스 -->
+	<query>
+		<name>접속 디바이 등록</name>
+		<extractionTargetDB>bizplay</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CHNL_ID
+     , USE_INTT_ID
+     , JNNG_PATH 
+     , USER_OS
+     , USER_BR
+     , USER_BR_VER
+     , LGN_DT
+     , COUNT(LGN_DT) AS USE_CNT
+  FROM(
+	SELECT CHNL_ID
+	     , USE_INTT_ID
+	     , (CASE WHEN LGN_DVC_DSNC = 'mobile' THEN 'mobile' ELSE 'pc'                         END) AS JNNG_PATH 
+	     , (CASE WHEN USER_OS      = ''       THEN 'none'   ELSE COALESCE(USER_OS    ,'none') END) AS USER_OS 
+	     , (CASE WHEN USER_BR      = ''       THEN 'none'   ELSE COALESCE(USER_BR    ,'none') END) AS USER_BR
+	     , (CASE WHEN USER_BR_VER  = ''       THEN 'none'   ELSE COALESCE(USER_BR_VER,'none') END) AS USER_BR_VER
+	     , LGN_DT
+	  FROM LGN_PRHS 
+	 WHERE LGN_DT = ?
+      )A
+  GROUP BY CHNL_ID , USE_INTT_ID , JNNG_PATH , USER_OS , USER_BR , USER_BR_VER , LGN_DT
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_CCTN_DVC_ACRS(CHNL_ID , USE_INTT_ID , CCTN_DSNC , OS , BR , BR_VER , CCTN_DT , USE_CNT)
+VALUES(#CHNL_ID# , #USE_INTT_ID# , #JNNG_PATH# , #USER_OS# , #USER_BR# , #USER_BR_VER# , #LGN_DT# ,  TO_NUMBER(#USE_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>	
+	<!-- 접속 디바이스 -->
+	
+	
+	
+	<!-- APP 실행 실적 -->
+	<query>
+		<name>APP 실행 실적 등록</name>
+		<extractionTargetDB>platform</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CHNL_ID
+     , USE_INTT_SRNO 
+     , CNTS_ID 
+     , CRTC_DT
+     , USER_ID      
+     , COUNT(USER_ID) AS EXCN_CNT
+  FROM(
+	SELECT COALESCE(CCTN_CHNL_ID ,'CHNL_1') AS CHNL_ID
+	     , USE_INTT_SRNO 
+	     , CNTS_ID 
+	     , CRTC_DT
+	     , USER_ID      
+	  FROM WA_CRTC_PRHS 
+	 WHERE PTL_ID        =  'PTL_51'
+	   AND CRTC_DT       =  ?	   
+	   AND USE_INTT_SRNO <> '999999999'
+      )A   
+   GROUP BY CHNL_ID , USE_INTT_SRNO , CNTS_ID , USER_ID , CRTC_DT
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_APP_EXCN_ACRS(CHNL_ID , USE_INTT_ID , CNTS_ID , USER_ID , EXCN_DT , EXCN_CNT)
+VALUES(#CHNL_ID# , #USE_INTT_SRNO# , #CNTS_ID# , #USER_ID# , #CRTC_DT# , TO_NUMBER(#EXCN_CNT#,'99999'))
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- APP 실행 실적 -->
+	
+	
+	
+	<!-- We-Cloud 사용 실적 -->
+	<query>
+		<name>We-Cloud 사용 실적 등록</name>
+		<extractionTargetDB>platform</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CCTN_CHNL_ID
+     , USE_INTT_ID
+     , CNTS_ID 
+     , USER_ID
+     , AMNN_DT 
+     , COUNT(USER_ID  ) AS FILE_CNT 
+     , SUM  (FILE_SIZE) AS USQN
+  FROM(
+	SELECT COALESCE(CCTN_CHNL_ID ,'CHNL_1') AS CCTN_CHNL_ID
+	     , USE_INTT_ID
+	     , CNTS_ID 
+	     , USER_ID
+	     , AMNN_DT 
+	     , FILE_SIZE
+	FROM UPLOAD_FILE_USE_HSTR
+	WHERE FILE_STTS = 'F'
+	  AND AMNN_DT   = ?
+	  AND API_ID NOT IN ('R6XMM954uGg3beGsJpl9c1B2iUxwAPXz0nyPy50fHQXHPsRQCz' , 'RUnydaXkje6f6cboNKWlYS9V30lmvbx02U-KsyBlIS0kDld_B2')
+	  AND CHNL_ID   <>  '999999999'
+      )A
+GROUP BY CCTN_CHNL_ID , USE_INTT_ID , CNTS_ID , USER_ID , AMNN_DT
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_CLD_USE_ACRS(CHNL_ID , USE_INTT_ID , CNTS_ID , USER_ID , UPLOAD_DT , USQN , FILE_CNT)
+VALUES(#CCTN_CHNL_ID# , #USE_INTT_ID# , #CNTS_ID# , #USER_ID# , #AMNN_DT# , TO_NUMBER(#USQN#,'999999999999999') , TO_NUMBER(#FILE_CNT#,'9999'))
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- We-Cloud 사용 실적 -->	
+	
+	
+	
+	<!-- We-Cloud 업로드 확장자 실적 -->
+	<query>
+		<name>We-Cloud 업로드 확장자 실적 등록</name>
+		<extractionTargetDB>platform</extractionTargetDB>
+		<extractionQuery>
+<![CDATA[
+SELECT CCTN_CHNL_ID
+     , USE_INTT_ID
+     , CNTS_ID 
+     , FILE_TYPE
+     , AMNN_DT 
+     , COUNT(FILE_TYPE  ) AS FILE_CNT 
+  FROM(
+	SELECT COALESCE(CCTN_CHNL_ID ,'CHNL_1') AS CCTN_CHNL_ID
+	     , USE_INTT_ID
+	     , CNTS_ID 
+	     , COALESCE(FILE_TYPE , 'none') AS FILE_TYPE
+	     , AMNN_DT 
+	FROM UPLOAD_FILE_USE_HSTR
+	WHERE FILE_STTS = 'F'
+	  AND AMNN_DT   = ?
+	  AND API_ID NOT IN ('R6XMM954uGg3beGsJpl9c1B2iUxwAPXz0nyPy50fHQXHPsRQCz' , 'RUnydaXkje6f6cboNKWlYS9V30lmvbx02U-KsyBlIS0kDld_B2')
+	  AND CHNL_ID   <>  '999999999'
+      )A
+GROUP BY CCTN_CHNL_ID , USE_INTT_ID , CNTS_ID , FILE_TYPE , AMNN_DT
+]]>
+		</extractionQuery>
+		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
+		<transformationLoadingQuery>
+<![CDATA[
+INSERT INTO DW_CLD_FILE_EXT_ACRS(CHNL_ID , USE_INTT_ID , CNTS_ID , FILE_EXT , UPLOAD_DT , USE_CNT)
+VALUES(#CCTN_CHNL_ID# , #USE_INTT_ID# , #CNTS_ID# , #FILE_TYPE# , #AMNN_DT# , TO_NUMBER(#FILE_CNT#,'9999'))
+]]>
+		</transformationLoadingQuery>
+	</query>
+	<!-- We-Cloud 업로드 확장자 실적 -->	
 </store>

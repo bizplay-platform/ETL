@@ -21,8 +21,9 @@ public class Extraction {
 		
 		/* = -------------------------------------------------------------------------- = */
 		/* =   SQL 파싱		   	                                   			  			= */
-		/* = -------------------------------------------------------------------------- = */				
-		query       = dm.queryCompile(query);
+		/* = -------------------------------------------------------------------------- = */
+		query       = dm.replaceAnnotation(query);
+		query       = dm.queryCompile     (query);
 		strArrParam = new String[StringUtil.inValue(query , "?")];
 		if(strArrParam.length > 0){
 			for(int i = 0; i < strArrParam.length; i++){

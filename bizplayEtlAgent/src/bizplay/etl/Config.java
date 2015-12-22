@@ -9,8 +9,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,6 +18,7 @@ import org.xml.sax.SAXException;
 import bizplay.etl.cmo.CollectorCmo;
 import bizplay.etl.cmo.DwDbCmo;
 import bizplay.etl.cmo.TargetDbCmo;
+import bizplay.etl.com.etlLogManager;
 import bizplay.etl.exception.Code;
 import bizplay.etl.exception.EtlException;
 
@@ -100,7 +99,7 @@ public class Config{
     	Document               doc     = null;
     	
     	
-    	System.out.println("etl.config.xml 파일을 로드 합니다.");
+    	etlLogManager.etlLog("INFO" ,"etl.config.xml 파일을 로드 합니다.");
 		try{
 	        factory = DocumentBuilderFactory.newInstance();
 	        builder = factory.newDocumentBuilder();
@@ -161,7 +160,7 @@ public class Config{
         }
 
 		
-		System.out.println("etl.query.store.xml 파일을 로드 합니다.");
+		etlLogManager.etlLog("INFO" ,"etl.query.store.xml 파일을 로드 합니다.");
 		try{
 	        factory = DocumentBuilderFactory.newInstance();
 	        builder = factory.newDocumentBuilder();
@@ -174,7 +173,7 @@ public class Config{
     		/* = -------------------------------------------------------------------------- = */            
             NodeList queryList = doc.getElementsByTagName("query");
             for(int m = 0; m < queryList.getLength(); m++){
-            	//System.out.println(((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"    )).item(0)).getTextContent());
+            	//etlLogManager.etlLog("INFO" ,((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"    )).item(0)).getTextContent());
             	CollectorCmo temp = new CollectorCmo();
    			 	temp.setName      (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("name"                      )).item(0)).getTextContent());
    			 	temp.seteTarget   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionTargetDB"        )).item(0)).getTextContent());
@@ -196,25 +195,25 @@ public class Config{
     }
     
     public void print(){
-    	System.out.println("etl.query.store.xml");
-    	System.out.println("Agent 구동 시간 : "+getCollectTime());
+    	etlLogManager.etlLog("INFO" ,"etl.query.store.xml");
+    	etlLogManager.etlLog("INFO" ,"Agent 구동 시간 : "+getCollectTime());
     	for(TargetDbCmo item : getTargetDbCmo()){
-    		System.out.println("extractionTargetDB "+item.getAlias()+" driver   :"+item.getDriver  ());
-    		System.out.println("extractionTargetDB "+item.getAlias()+" url      :"+item.getUrl     ());
-    		System.out.println("extractionTargetDB "+item.getAlias()+" user     :"+item.getUser    ());
-    		System.out.println("extractionTargetDB "+item.getAlias()+" password :"+item.getPassword());
+    		etlLogManager.etlLog("INFO" ,"extractionTargetDB "+item.getAlias()+" driver   :"+item.getDriver  ());
+    		etlLogManager.etlLog("INFO" ,"extractionTargetDB "+item.getAlias()+" url      :"+item.getUrl     ());
+    		etlLogManager.etlLog("INFO" ,"extractionTargetDB "+item.getAlias()+" user     :"+item.getUser    ());
+    		etlLogManager.etlLog("INFO" ,"extractionTargetDB "+item.getAlias()+" password :"+item.getPassword());
     	}
-    	System.out.println("dataWareHouseDB driver   :"+getDwDbCmo().getDriver  ());
-    	System.out.println("dataWareHouseDB url      :"+getDwDbCmo().getUrl     ());
-    	System.out.println("dataWareHouseDB user     :"+getDwDbCmo().getUser    ());
-    	System.out.println("dataWareHouseDB password :"+getDwDbCmo().getPassword());
-    	System.out.println("===============================================================");
-    	System.out.println("etl.query.store.xml");
+    	etlLogManager.etlLog("INFO" ,"dataWareHouseDB driver   :"+getDwDbCmo().getDriver  ());
+    	etlLogManager.etlLog("INFO" ,"dataWareHouseDB url      :"+getDwDbCmo().getUrl     ());
+    	etlLogManager.etlLog("INFO" ,"dataWareHouseDB user     :"+getDwDbCmo().getUser    ());
+    	etlLogManager.etlLog("INFO" ,"dataWareHouseDB password :"+getDwDbCmo().getPassword());
+    	etlLogManager.etlLog("INFO" ,"===============================================================");
+    	etlLogManager.etlLog("INFO" ,"etl.query.store.xml");
     	for(CollectorCmo item : getCollectorCmo()){
-    		System.out.println(item.getName()+" extractionTargetDB         :"+item.geteTarget());
-    		System.out.println(item.getName()+" extractionQuery            :"+item.geteQuery ());
-    		System.out.println(item.getName()+" transformationLoadingClass :"+item.getTlClass());
-    		System.out.println(item.getName()+" transformationLoadingQuery :"+item.getTlQuery());
+    		etlLogManager.etlLog("INFO" ,item.getName()+" extractionTargetDB         :"+item.geteTarget());
+    		etlLogManager.etlLog("INFO" ,item.getName()+" extractionQuery            :"+item.geteQuery ());
+    		etlLogManager.etlLog("INFO" ,item.getName()+" transformationLoadingClass :"+item.getTlClass());
+    		etlLogManager.etlLog("INFO" ,item.getName()+" transformationLoadingQuery :"+item.getTlQuery());
     	}    	
     }
     

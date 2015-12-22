@@ -308,6 +308,19 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	/**
+	 * @description : Query에서 주석을 제거 합니다.
+	 * @param       : String
+	 * @return      : List<String>
+	 */
+	public String replaceAnnotation( String query ){
+		Pattern regex = Pattern.compile("(?:--[^;]*?$)|(--[^\r\n])|(?:/\\*[^;]*?\\*/)", Pattern.DOTALL | Pattern.MULTILINE);
+		Matcher regexMatcher = regex.matcher(query.toString());
+		return regexMatcher.replaceAll("");
+	}
+	
+	
 	/**
 	 * @description : Query 바인딩 변수를 추출합니다.
 	 * @param       : String

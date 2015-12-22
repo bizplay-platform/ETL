@@ -63,13 +63,14 @@
         </then>
         <!-- 설정파일에 RUN_MODE 가 SERVICE로 정의되어 있지 않으면  로깅 레벨을 DEBUG 지정 -->
         <else>
-            <logger name="access" level="debug" additivity="false">
+            <!-- logger name="access" level="debug" additivity="false">
             	<appender-ref ref="console"/>
         		<appender-ref ref="ACCESS_FILE" />
-    		</logger>
+    		</logger -->
             <root level="debug">
                 <appender-ref ref="console"/>
                 <appender-ref ref="FILE"/>
+                <appender-ref ref="STDOUT" />
             </root>
         </else>
     </if>
