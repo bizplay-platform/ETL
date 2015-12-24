@@ -11,9 +11,8 @@ import bizplay.etl.collector.impl.Collector;
 import bizplay.etl.com.etlLogManager;
 import bizplay.etl.database.DatabaseConnect;
 
-public class CollectorManager extends TimerTask{
+public class CollectorManager{
 
-	@Override
 	public void run() {
 		
 		/* = -------------------------------------------------------------------------- = */
@@ -68,7 +67,9 @@ public class CollectorManager extends TimerTask{
 				etlLogManager.etlLog("INFO" ,item.getName()+"(을) 종료 합니다.....................................");
 			}
 		}catch(Exception e){
+			e.printStackTrace();
 		}finally{
+			etlLogManager.etlLog("INFO" ,"Database Connect 반납");
 			connect.destroy();	
 		}
 	}

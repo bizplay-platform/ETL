@@ -159,39 +159,39 @@ public class Config{
         	throw new EtlException(Code.ETL0003 , e);
         }
 
-		
-		etlLogManager.etlLog("INFO" ,"etl.query.store.xml 파일을 로드 합니다.");
-		try{
-	        factory = DocumentBuilderFactory.newInstance();
-	        builder = factory.newDocumentBuilder();
-	        doc     = builder.parse(querySrote);
-	        doc.getDocumentElement().normalize();
-	        
-           
-    		/* = -------------------------------------------------------------------------- = */
-    		/* =   타겟DB 정보 로드  	                                   			  			= */
-    		/* = -------------------------------------------------------------------------- = */            
-            NodeList queryList = doc.getElementsByTagName("query");
-            for(int m = 0; m < queryList.getLength(); m++){
-            	//etlLogManager.etlLog("INFO" ,((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"    )).item(0)).getTextContent());
-            	CollectorCmo temp = new CollectorCmo();
-   			 	temp.setName      (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("name"                      )).item(0)).getTextContent());
-   			 	temp.seteTarget   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionTargetDB"        )).item(0)).getTextContent());
-   			 	temp.seteQuery    (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"           )).item(0)).getTextContent());
-   			 	temp.setTlClass   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("transformationLoadingClass")).item(0)).getTextContent());
-   			 	temp.setTlQuery   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("transformationLoadingQuery")).item(0)).getTextContent());
-   			 	col.add(temp);            	
-            }            
-        }catch (ParserConfigurationException e) {
-        	throw new EtlException(Code.ETL0004 , e);
-		}		
-        catch (SAXException e){
-        	throw new EtlException(Code.ETL0004 , e);
-        }
-        catch (IOException e){
-        	throw new EtlException(Code.ETL0004 , e);
-        }
-		
+		if(querySrote != null){
+			etlLogManager.etlLog("INFO" ,"etl.query.store.xml 파일을 로드 합니다.");
+			try{
+		        factory = DocumentBuilderFactory.newInstance();
+		        builder = factory.newDocumentBuilder();
+		        doc     = builder.parse(querySrote);
+		        doc.getDocumentElement().normalize();
+		        
+	           
+	    		/* = -------------------------------------------------------------------------- = */
+	    		/* =   타겟DB 정보 로드  	                                   			  			= */
+	    		/* = -------------------------------------------------------------------------- = */            
+	            NodeList queryList = doc.getElementsByTagName("query");
+	            for(int m = 0; m < queryList.getLength(); m++){
+	            	//etlLogManager.etlLog("INFO" ,((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"    )).item(0)).getTextContent());
+	            	CollectorCmo temp = new CollectorCmo();
+	   			 	temp.setName      (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("name"                      )).item(0)).getTextContent());
+	   			 	temp.seteTarget   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionTargetDB"        )).item(0)).getTextContent());
+	   			 	temp.seteQuery    (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("extractionQuery"           )).item(0)).getTextContent());
+	   			 	temp.setTlClass   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("transformationLoadingClass")).item(0)).getTextContent());
+	   			 	temp.setTlQuery   (((Element)((NodeList)((Element)queryList.item(m)).getElementsByTagName("transformationLoadingQuery")).item(0)).getTextContent());
+	   			 	col.add(temp);            	
+	            }            
+	        }catch (ParserConfigurationException e) {
+	        	throw new EtlException(Code.ETL0004 , e);
+			}		
+	        catch (SAXException e){
+	        	throw new EtlException(Code.ETL0004 , e);
+	        }
+	        catch (IOException e){
+	        	throw new EtlException(Code.ETL0004 , e);
+	        }			
+		}
     }
     
     public void print(){

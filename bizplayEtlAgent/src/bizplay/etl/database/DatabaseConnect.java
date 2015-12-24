@@ -9,6 +9,7 @@ import java.util.List;
 import bizplay.etl.Config;
 import bizplay.etl.cmo.DwDbCmo;
 import bizplay.etl.cmo.TargetDbCmo;
+import bizplay.etl.com.etlLogManager;
 
 public class DatabaseConnect {
 	private static DatabaseConnect    instance    = null;
