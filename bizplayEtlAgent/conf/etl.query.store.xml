@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <store>
-
-	<!-- query>
-		<name>WeAuth 인증 이력 수집</name>
-		<extractionTargetDB>platform</extractionTargetDB>
-		<extractionQuery>
-			<![CDATA[
-SELECT CRTC_DT , SUBSTR(CRTC_TMD,1,2) AS CRTC_TIME , CCTN_CHNL_ID , USE_INTT_SRNO , CNTS_ID , USER_ID , COUNT(USER_ID) AS CONN_CNT
-  FROM WA_CRTC_PRHS 
- WHERE CRTC_DT  = ?
-   AND SVC_PTRN = 'M'
-   AND PTL_ID   = 'PTL_51'
-   AND USE_INTT_SRNO <> '999999999'                                                   
- GROUP BY CRTC_DT , SUBSTR(CRTC_TMD,1,2) , CCTN_CHNL_ID , USE_INTT_SRNO , CNTS_ID , USER_ID
-			]]>
-		</extractionQuery>
-		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
-		<transformationLoadingQuery>
-<![CDATA[
-INSERT INTO DW_BP_APP_EXCN_ACRS(CRTC_DT , CRTC_HH , CHNL_ID , USE_INTT_ID , CNTS_ID , USER_ID , EXCN_CNT)
-VALUES(#CRTC_DT# , #CRTC_TIME# ,#CCTN_CHNL_ID# , #USE_INTT_SRNO# , #CNTS_ID# , #USER_ID# , TO_NUMBER(#CONN_CNT#,'99999'))
-]]>
-		</transformationLoadingQuery>
-	</query-->	
-
 	<!-- 채널 정보 -->
 	<query>
 		<name>채널 정보 수집</name>
@@ -134,19 +110,21 @@ VALUES(#USER_ID# , #USER_NM# , #CLPH_NO# , #EML# , #RGSN_DT#)
 		<extractionTargetDB>bizplay</extractionTargetDB>
 		<extractionQuery>
 <![CDATA[
-SELECT A.APP_SRNO
-     , B.APP_NM
-     , A.CNTS_ID 
-  FROM       APP_LDGR          A
-  INNER JOIN APP_LNGG_PER_INFM B ON (A.APP_SRNO = B.APP_SRNO AND B.LNGG_DSNC = 'DF')
-  WHERE SUBSTRING(RGSN_DTTM,1,8) = ?
+SELECT A.APP_SRNO 
+     , B.APP_NM 
+     , A.CNTS_ID
+     , C.NCH_YN
+  FROM       APP_LDGR          A 
+  INNER JOIN APP_LNGG_PER_INFM B ON (A.APP_SRNO = B.APP_SRNO AND B.LNGG_DSNC = 'DF') 
+  INNER JOIN APP_PRC_INFM      C ON (A.APP_SRNO = C.APP_SRNO AND C.LNGG_DSNC = 'DF') 
+  WHERE SUBSTRING(RGSN_DTTM,1,8) = ?  
 ]]>
 		</extractionQuery>
 		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
 		<transformationLoadingQuery>
 <![CDATA[
-INSERT INTO DW_APP_INFM(APP_SRNO , APP_NM , CNTS_ID )
-VALUES(TO_NUMBER(#APP_SRNO#,'99999') , #APP_NM# , #CNTS_ID#)
+INSERT INTO DW_APP_INFM(APP_SRNO , APP_NM , CNTS_ID , NCH_YN)
+VALUES(TO_NUMBER(#APP_SRNO#,'99999') , #APP_NM# , #CNTS_ID# , #NCH_YN#)
 ]]>
 		</transformationLoadingQuery>
 	</query>
@@ -213,15 +191,15 @@ UPDATE DW_USE_INTT_PER_USER_HSTR
 		<extractionTargetDB>bizplay</extractionTargetDB>
 		<extractionQuery>
 <![CDATA[
-SELECT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
+SELECT DISTINCT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
      , USE_INTT_ID
      , APP_SRNO
      , CNRC_RSPR_ID
      , AGRM_TERM_STDD
      , '99999999' AS TRMT_DT
   FROM USE_INTT_PER_AGRM_BSC_INFM 
- WHERE CNRC_DSNC = '2'
-   AND AGRM_TERM_STDD = '20151218'
+ WHERE CNRC_DSNC     = '2'
+   AND AGRM_TERM_STDD = ?
 ]]>
 		</extractionQuery>
 		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
@@ -238,13 +216,13 @@ VALUES(#CCTN_CHNL_ID# , #USE_INTT_ID# , TO_NUMBER(#APP_SRNO#,'99999') , #CNRC_RS
 		<extractionTargetDB>bizplay</extractionTargetDB>
 		<extractionQuery>
 <![CDATA[
-SELECT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
+SELECT DISTINCT (CASE WHEN CCTN_CHNL_ID = '' THEN 'CHNL_1' ELSE COALESCE(CCTN_CHNL_ID,'CHNL_1') END) AS CCTN_CHNL_ID   
      , USE_INTT_ID
      , APP_SRNO
      , CNRC_RSPR_ID
      , AGRM_TERM_FNDA
   FROM USE_INTT_PER_AGRM_BSC_INFM 
- WHERE CNRC_DSNC = '2'
+ WHERE CNRC_DSNC      = '2'
    AND AGRM_TERM_FNDA = ?
 ]]>
 		</extractionQuery>
@@ -270,14 +248,26 @@ UPDATE DW_APP_BUY_HSTR
 		<extractionTargetDB>bizplay</extractionTargetDB>
 		<extractionQuery>
 <![CDATA[
-SELECT CHNL_ID
-     , USE_INTT_ID
-     , APP_SRNO
-     , SUBSTRING(APRVL_DTTM,1,8) AS APRVL_DT
+SELECT CHNL_ID 
+     , USE_INTT_ID 
+     , APP_SRNO 
+     , APRVL_DT 
      , COUNT(USE_INTT_ID) AS USE_CNT
-  FROM USER_PER_APP_USE_INFM
- WHERE SUBSTRING(APRVL_DTTM,1,8) = ?
- GROUP BY CHNL_ID , USE_INTT_ID , APP_SRNO , SUBSTRING(APRVL_DTTM,1,8)   
+  FROM(
+		/*기본 APP*/
+		SELECT CHNL_ID , USE_INTT_ID , APP_SRNO , SUBSTRING(APLC_DTTM,1,8) AS APRVL_DT
+		  FROM USER_PER_APP_USE_INFM 
+		 WHERE SUBSTRING(APLC_DTTM , 1 , 8) = ?
+		   AND STTS = '1' 
+		   AND APRVL_DTTM IS NULL
+		UNION ALL
+		/*승인 처리된 APP*/
+		SELECT CHNL_ID , USE_INTT_ID , APP_SRNO , SUBSTRING(APRVL_DTTM , 1 , 8) AS APRVL_DT
+		  FROM USER_PER_APP_USE_INFM 
+		 WHERE SUBSTRING(APRVL_DTTM , 1 , 8) = ?
+		   AND STTS = '1' 
+      )A
+      GROUP BY CHNL_ID , USE_INTT_ID , APP_SRNO , APRVL_DT 
 ]]>
 		</extractionQuery>
 		<transformationLoadingClass>bizplay.etl.collector.DefaultCollector</transformationLoadingClass>
