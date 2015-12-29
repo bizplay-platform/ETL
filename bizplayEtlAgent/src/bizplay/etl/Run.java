@@ -60,10 +60,10 @@ public class Run {
 			etlLogManager.etlLog("INFO" , "Agent가 구동 되었습니다.");
 			/* = -------------------------------------------------------------------------- = */
 			/* =   스케쥴 설정	   	                                   			  			= */
-			/* = -------------------------------------------------------------------------- = */		
-			dateTime.set(Calendar.HOUR_OF_DAY	, Integer.parseInt(Config.getInstance().getCollectTime()) );
-			dateTime.set(Calendar.MINUTE		, Integer.parseInt(Config.getInstance().getCollectTime()) );
-			dateTime.set(Calendar.SECOND		, Integer.parseInt(Config.getInstance().getCollectTime()) );
+			/* = -------------------------------------------------------------------------- = */
+			dateTime.set(Calendar.HOUR_OF_DAY	, Integer.parseInt(Config.getInstance().getCollectTime().substring(0, 2)) );
+			dateTime.set(Calendar.MINUTE		, Integer.parseInt(Config.getInstance().getCollectTime().substring(2, 4)) );
+			dateTime.set(Calendar.SECOND		, Integer.parseInt(Config.getInstance().getCollectTime().substring(4, 6)) );
 			dateTime.add(Calendar.DATE			, +1                                                      );
 			timer.scheduleAtFixedRate(new TimerTaskManager(), dateTime.getTime(), 86400000);			
 		}else if("A".equals(args[0])){
