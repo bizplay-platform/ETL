@@ -64,7 +64,7 @@ public class Run {
 			dateTime.set(Calendar.HOUR_OF_DAY	, Integer.parseInt(Config.getInstance().getCollectTime().substring(0, 2)) );
 			dateTime.set(Calendar.MINUTE		, Integer.parseInt(Config.getInstance().getCollectTime().substring(2, 4)) );
 			dateTime.set(Calendar.SECOND		, Integer.parseInt(Config.getInstance().getCollectTime().substring(4, 6)) );
-			dateTime.add(Calendar.DATE			, +1                                                      );
+			dateTime.add(Calendar.DATE			, +1                                                                      );
 			timer.scheduleAtFixedRate(new TimerTaskManager(), dateTime.getTime(), 86400000);			
 		}else if("A".equals(args[0])){
 			etlLogManager.etlLog("INFO" , "CollectorManager를 실행 합니다.");
