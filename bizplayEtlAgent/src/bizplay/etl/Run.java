@@ -32,11 +32,11 @@ public class Run {
 		/* =   설정 파일 Read	   	                                   			  			= */
 		/* = -------------------------------------------------------------------------- = */
 
-		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+"/conf 디렉터리 에서 etl.config.xml을 찾습니다.");
-		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+"/conf 디렉터리 에서 etl.query.store.xml을 찾습니다.");
+		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+""+System.getProperties().getProperty("ETL_CONFIG"     )+" etl.config.xml을 찾습니다.");
+		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+""+System.getProperties().getProperty("ETL_QUERY_STORE")+" etl.query.store.xml을 찾습니다.");
 		
-		config     = new File(System.getProperties().getProperty("ETL_HOME")+"\\conf\\etl.config.xml");
-		queryStore = new File(System.getProperties().getProperty("ETL_HOME")+"\\conf\\etl.query.store.xml");
+		config     = new File(System.getProperties().getProperty("ETL_HOME")+System.getProperties().getProperty("ETL_CONFIG"     ));
+		queryStore = new File(System.getProperties().getProperty("ETL_HOME")+System.getProperties().getProperty("ETL_QUERY_STORE"));
 		
 		if( !config.exists    () )
 			throw new EtlException(Code.ETL0001);

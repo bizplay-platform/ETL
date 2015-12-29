@@ -33,9 +33,9 @@ public class DatabaseConnectTest {
 		/* =   설정 파일 Read	   	                                   			  			= */
 		/* = -------------------------------------------------------------------------- = */
 
-		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+"/conf 디렉터리 에서 etl.config.xml을 찾습니다.");
+		etlLogManager.etlLog("INFO" ,System.getProperties().getProperty("ETL_HOME")+""+System.getProperties().getProperty("ETL_CONFIG"     )+" etl.config.xml을 찾습니다.");
 		
-		config = new File(System.getProperties().getProperty("ETL_HOME")+"\\conf\\etl.config.xml");
+		config = new File(System.getProperties().getProperty("ETL_HOME")+System.getProperties().getProperty("ETL_CONFIG"));
 		
 		if( !config.exists    () )
 			throw new EtlException(Code.ETL0001);
